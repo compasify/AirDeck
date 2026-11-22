@@ -130,6 +130,7 @@ app/src/main/java/dev/airdeck/
 ## Related Projects
 
 - **[OpenDex](https://github.com/compasify/OpenDex)** — An open-source desktop mode workspace for Android featuring a taskbar, free-form app windows, and full support for on-device screens, wired USB-C/HDMI displays, and wireless Wi-Fi Cast displays. Pair **AirDeck** with an external screen or Android TV running **OpenDex** for a complete wireless desktop setup.
+- **[Media Float Button](https://github.com/compasify/media-float-button)** — Floating skip-back, skip-forward, and play/pause overlay controls for web videos on Android tablets and phones, with customizable seek intervals, opacity, size, and quick widget/notification toggles.
 
 ---
 
