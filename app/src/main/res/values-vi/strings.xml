@@ -1,0 +1,86 @@
+<resources>
+    <!-- Connection status -->
+    <string name="status_disconnected">Chưa kết nối</string>
+    <string name="status_registering">Đang khởi tạo Bluetooth…</string>
+    <string name="status_ready">Sẵn sàng kết nối</string>
+    <string name="status_connecting">Đang kết nối %1$s…</string>
+    <string name="status_connected">%1$s</string>
+    <string name="status_bluetooth_off">Bluetooth đang tắt</string>
+    <string name="status_permission_needed">Cần cấp quyền Bluetooth</string>
+    <string name="status_unsupported">Thiết bị không hỗ trợ Bluetooth HID</string>
+    <string name="status_error">Lỗi kết nối</string>
+
+    <!-- Top bar & layout modes -->
+    <string name="layout_auto">Tự động</string>
+    <string name="layout_touchpad">Touchpad</string>
+    <string name="layout_split">Chia đôi</string>
+    <string name="layout_keyboard">Bàn phím</string>
+    <string name="tv_keys_toggle">Phím TV</string>
+    <string name="dim_screen">Làm tối màn hình</string>
+    <string name="settings_title">Cài đặt</string>
+    <string name="send_text_button">Gửi văn bản</string>
+    <string name="devices_button">Thiết bị</string>
+
+    <!-- Touchpad hints & controls -->
+    <string name="touchpad_hint_connect">Chạm \"%1$s\" ở trên để ghép nối với TV hoặc máy tính</string>
+    <string name="touchpad_hint_gestures">1 ngón: di chuột &amp; chạm click • 2 ngón: cuộn &amp; chuột phải • chạm-giữ: kéo thả</string>
+    <string name="touchpad_left_click">Chuột trái</string>
+    <string name="touchpad_right_click">Chuột phải</string>
+    <string name="blackout_hint">Đã làm tối màn hình để tiết kiệm pin\nChạm đúp thanh trên để bật sáng lại</string>
+    <string name="wake_screen">Bật sáng màn hình</string>
+
+    <!-- TV / Media quick bar -->
+    <string name="tv_back">Quay lại</string>
+    <string name="tv_home">Màn hình chính</string>
+    <string name="tv_menu">Menu</string>
+    <string name="tv_search">Tìm kiếm</string>
+    <string name="tv_play_pause">Phát / Tạm dừng</string>
+    <string name="tv_vol_down">Giảm âm lượng</string>
+    <string name="tv_vol_up">Tăng âm lượng</string>
+    <string name="tv_mute">Tắt tiếng</string>
+
+    <!-- Device sheet -->
+    <string name="sheet_devices_title">Thiết bị Bluetooth</string>
+    <string name="sheet_devices_subtitle">Kết nối với Smart TV, Android TV, máy tính hoặc tablet</string>
+    <string name="action_grant_permission">Cấp quyền Bluetooth</string>
+    <string name="action_enable_bluetooth">Bật Bluetooth</string>
+    <string name="action_make_discoverable">Cho phép TV tìm thấy (2 phút)</string>
+    <string name="action_open_bt_settings">Cài đặt Bluetooth</string>
+    <string name="action_connect">Kết nối</string>
+    <string name="action_disconnect">Ngắt kết nối</string>
+    <string name="action_retry">Thử lại</string>
+    <string name="paired_devices_header">Thiết bị đã ghép nối</string>
+    <string name="no_paired_devices">Chưa có thiết bị nào được ghép nối.\nChạm \"Cho phép TV tìm thấy\" rồi tìm điện thoại này trong mục Bluetooth của TV.</string>
+    <string name="pairing_tip">Mẹo: Trên Smart TV, vào Cài đặt → Điều khiển từ xa &amp; Phụ kiện (hoặc Bluetooth) → Thêm phụ kiện, sau đó chọn thiết bị này.</string>
+    <string name="connected_badge">Đã kết nối</string>
+    <string name="connecting_badge">Đang kết nối…</string>
+
+    <!-- Settings sheet -->
+    <string name="setting_pointer_speed">Tốc độ con trỏ (%1$.1fx)</string>
+    <string name="setting_scroll_speed">Tốc độ cuộn (%1$.1fx)</string>
+    <string name="setting_natural_scroll">Cuộn tự nhiên</string>
+    <string name="setting_natural_scroll_desc">Nội dung cuộn theo hướng di chuyển của ngón tay</string>
+    <string name="setting_haptics">Phản hồi rung</string>
+    <string name="setting_haptics_desc">Rung nhẹ khi nhấn phím hoặc click chuột</string>
+    <string name="setting_keep_screen_on">Giữ màn hình luôn sáng</string>
+    <string name="setting_keep_screen_on_desc">Không tự tắt màn hình khi đang mở AirDeck</string>
+    <string name="setting_mouse_buttons">Hiện nút chuột trái / phải</string>
+    <string name="setting_mouse_buttons_desc">Hiển thị thanh nút Chuột trái / Chuột phải dưới touchpad</string>
+    <string name="setting_layout_mode">Bố cục mặc định</string>
+
+    <!-- Quick text dialog -->
+    <string name="quick_text_title">Gửi văn bản sang thiết bị</string>
+    <string name="quick_text_hint">Dán hoặc nhập văn bản không dấu (link, mật khẩu, từ khóa)</string>
+    <string name="quick_text_note">Gửi dưới dạng tổ hợp phím vật lý chuẩn US qua Bluetooth HID.</string>
+    <string name="action_send">Gửi</string>
+    <string name="action_cancel">Hủy</string>
+    <string name="action_paste">Dán</string>
+
+    <!-- Foreground notification -->
+    <string name="notif_channel_name">Kết nối Bluetooth AirDeck</string>
+    <string name="notif_channel_desc">Duy trì kết nối bàn phím và touchpad không dây</string>
+    <string name="notif_title">AirDeck đang hoạt động</string>
+    <string name="notif_connected">Đang kết nối với %1$s</string>
+    <string name="notif_ready">Sẵn sàng kết nối Bluetooth</string>
+    <string name="notif_action_disconnect">Ngắt kết nối</string>
+</resources>

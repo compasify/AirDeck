@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name" translatable="false">AirDeck</string>
+
+    <!-- Connection status -->
+    <string name="status_disconnected">Not connected</string>
+    <string name="status_registering">Starting Bluetooth…</string>
+    <string name="status_ready">Ready to connect</string>
+    <string name="status_connecting">Connecting to %1$s…</string>
+    <string name="status_connected">%1$s</string>
+    <string name="status_bluetooth_off">Bluetooth is off</string>
+    <string name="status_permission_needed">Bluetooth permission required</string>
+    <string name="status_unsupported">Bluetooth HID is not supported on this device</string>
+    <string name="status_error">Connection error</string>
+
+    <!-- Top bar & layout modes -->
+    <string name="layout_auto">Auto</string>
+    <string name="layout_touchpad">Touchpad</string>
+    <string name="layout_split">Split</string>
+    <string name="layout_keyboard">Keyboard</string>
+    <string name="tv_keys_toggle">TV controls</string>
+    <string name="dim_screen">Dim screen</string>
+    <string name="settings_title">Settings</string>
+    <string name="send_text_button">Type / Paste</string>
+    <string name="devices_button">Devices</string>
+
+    <!-- Touchpad hints & controls -->
+    <string name="touchpad_hint_connect">Tap \"%1$s\" above to pair with your TV or PC</string>
+    <string name="touchpad_hint_gestures">1 finger: move &amp; tap click • 2 fingers: scroll &amp; right-click • tap-hold: drag</string>
+    <string name="touchpad_left_click">Left</string>
+    <string name="touchpad_right_click">Right</string>
+    <string name="blackout_hint">Screen dimmed to save battery\nDouble-tap top bar to wake</string>
+    <string name="wake_screen">Wake screen</string>
+
+    <!-- TV / Media quick bar -->
+    <string name="tv_back">Back</string>
+    <string name="tv_home">Home</string>
+    <string name="tv_menu">Menu</string>
+    <string name="tv_search">Search</string>
+    <string name="tv_play_pause">Play / Pause</string>
+    <string name="tv_vol_down">Volume down</string>
+    <string name="tv_vol_up">Volume up</string>
+    <string name="tv_mute">Mute</string>
+
+    <!-- Device sheet -->
+    <string name="sheet_devices_title">Bluetooth Devices</string>
+    <string name="sheet_devices_subtitle">Connect to a Smart TV, Android TV, PC, or tablet</string>
+    <string name="action_grant_permission">Grant Bluetooth permission</string>
+    <string name="action_enable_bluetooth">Turn on Bluetooth</string>
+    <string name="action_make_discoverable">Make visible to TV (2 min)</string>
+    <string name="action_open_bt_settings">Bluetooth settings</string>
+    <string name="action_connect">Connect</string>
+    <string name="action_disconnect">Disconnect</string>
+    <string name="action_retry">Retry</string>
+    <string name="paired_devices_header">Paired devices</string>
+    <string name="no_paired_devices">No paired devices yet.\nTap \"Make visible to TV\" and search for this phone in your TV\'s Bluetooth settings.</string>
+    <string name="pairing_tip">Tip: On your Smart TV, open Settings → Remotes &amp; Accessories (or Bluetooth) → Add accessory, then select this device.</string>
+    <string name="connected_badge">Connected</string>
+    <string name="connecting_badge">Connecting…</string>
+
+    <!-- Settings sheet -->
+    <string name="setting_pointer_speed">Pointer speed (%1$.1fx)</string>
+    <string name="setting_scroll_speed">Scroll speed (%1$.1fx)</string>
+    <string name="setting_natural_scroll">Natural scrolling</string>
+    <string name="setting_natural_scroll_desc">Scroll content in the direction of finger movement</string>
+    <string name="setting_haptics">Haptic feedback</string>
+    <string name="setting_haptics_desc">Subtle vibration on key press and click</string>
+    <string name="setting_keep_screen_on">Keep screen awake</string>
+    <string name="setting_keep_screen_on_desc">Prevent sleep while AirDeck is open</string>
+    <string name="setting_mouse_buttons">Show mouse click buttons</string>
+    <string name="setting_mouse_buttons_desc">Display dedicated Left / Right click bar under touchpad</string>
+    <string name="setting_layout_mode">Default layout</string>
+
+    <!-- Quick text dialog -->
+    <string name="quick_text_title">Send text to host</string>
+    <string name="quick_text_hint">Paste or type ASCII text (URLs, passwords, search queries)</string>
+    <string name="quick_text_note">Sent as physical US-keyboard keystrokes over Bluetooth HID.</string>
+    <string name="action_send">Send</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_paste">Paste</string>
+
+    <!-- Foreground notification -->
+    <string name="notif_channel_name">AirDeck Bluetooth Connection</string>
+    <string name="notif_channel_desc">Keeps wireless keyboard and touchpad connected</string>
+    <string name="notif_title">AirDeck active</string>
+    <string name="notif_connected">Connected to %1$s</string>
+    <string name="notif_ready">Ready for Bluetooth connection</string>
+    <string name="notif_action_disconnect">Disconnect</string>
+</resources>
