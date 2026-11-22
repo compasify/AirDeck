@@ -9,13 +9,16 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +40,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.airdeck.hid.HidDescriptor
@@ -222,6 +226,12 @@ private val COMPACT_ROW_SPACE = listOf(
     DeckKeySpec("→", usageId = HidKeyMap.KEY_RIGHT, weight = 0.95f, repeatable = true),
 )
 
+/**
+ * Proportional virtual laptop keyboard.
+ *
+ * Uses realistic physical key proportions (bounded row height + slim F-row + centered max width)
+ * rather than stretching keys to fill arbitrary screen heights.
+ */
 @Composable
 fun VirtualKeyboard(
     compact: Boolean,
@@ -232,6 +242,7 @@ fun VirtualKeyboard(
     onKeyUp: (usageId: Int, modifierMask: Int) -> Unit,
     onTapKey: (usageId: Int, modifierMask: Int) -> Unit,
     modifier: Modifier = Modifier,
+    maxKeyboardHeight: Dp = 360.dp,
 ) {
     val colors = MaterialTheme.colorScheme
     val view = LocalView.current
@@ -259,7 +270,8 @@ fun VirtualKeyboard(
         metaSticky = false
     }
 
-    val rows = remember(compact, showFunctionRow) {
+    val includeFnRow = !compact && showFunctionRow
+    val rows = remember(compact, includeFnRow) {
         if (compact) {
             listOf(
                 COMPACT_ROW_NUM,
@@ -270,7 +282,7 @@ fun VirtualKeyboard(
             )
         } else {
             buildList {
-                if (showFunctionRow) add(ROW_FN)
+                if (includeFnRow) add(ROW_FN)
                 add(ROW_NUM)
                 add(ROW_TOP)
                 add(ROW_HOME)
@@ -280,82 +292,121 @@ fun VirtualKeyboard(
         }
     }
 
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.outline.copy(alpha = 0.55f), RoundedCornerShape(16.dp))
-            .padding(horizontal = if (compact) 4.dp else 8.dp, vertical = if (compact) 5.dp else 8.dp),
-        verticalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 6.dp),
+    BoxWithConstraints(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center,
     ) {
-        for (row in rows) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(if (compact) 3.dp else 5.dp),
-            ) {
-                for (spec in row) {
-                    val isModActive = when (spec.modKind) {
-                        ModKind.Shift -> shiftSticky
-                        ModKind.Caps -> capsOn
-                        ModKind.Ctrl -> ctrlSticky
-                        ModKind.Alt -> altSticky
-                        ModKind.Meta -> metaSticky
-                        null -> false
-                    }
-                    val displayLabel = when {
-                        spec.isLetter -> if (shiftSticky xor capsOn) spec.shiftLabel ?: spec.label else spec.label
-                        shiftSticky && spec.shiftLabel != null -> spec.shiftLabel
-                        else -> spec.label
-                    }
-                    val secondaryLabel = if (!compact && !spec.isLetter && spec.shiftLabel != null) {
-                        if (shiftSticky) spec.label else spec.shiftLabel
-                    } else {
-                        null
-                    }
+        val boardMaxWidth = if (compact) maxWidth else minOf(maxWidth, 980.dp)
+        val vPadding = if (compact) 6.dp else 8.dp
+        val hPadding = if (compact) 4.dp else 8.dp
+        val rowGap = if (compact) 4.dp else 5.dp
+        val keyGap = if (compact) 3.dp else 5.dp
 
-                    KeyboardKeyCap(
-                        label = displayLabel,
-                        secondaryLabel = secondaryLabel,
-                        active = isModActive,
-                        isActionKey = spec.modKind != null || spec.usageId == HidKeyMap.KEY_ENTER || spec.usageId == HidKeyMap.KEY_BACKSPACE,
-                        compact = compact,
-                        repeatable = spec.repeatable,
-                        hapticsEnabled = hapticsEnabled,
-                        onPress = {
-                            if (hapticsEnabled) {
-                                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                            }
-                            when (spec.modKind) {
-                                ModKind.Shift -> shiftSticky = !shiftSticky
-                                ModKind.Ctrl -> ctrlSticky = !ctrlSticky
-                                ModKind.Alt -> altSticky = !altSticky
-                                ModKind.Meta -> metaSticky = !metaSticky
-                                ModKind.Caps -> {
-                                    capsOn = !capsOn
-                                    onTapKey(HidKeyMap.KEY_CAPS_LOCK, 0)
+        // Calculate natural physical key height from board width
+        val unitWidth = if (compact) {
+            (boardMaxWidth - hPadding * 2) / 10.6f
+        } else {
+            (boardMaxWidth - hPadding * 2) / 14.8f
+        }
+        val idealMainRow = if (compact) {
+            (unitWidth * 1.15f).coerceIn(36.dp, 48.dp)
+        } else {
+            (unitWidth * 0.86f).coerceIn(38.dp, 54.dp)
+        }
+
+        // Ensure keyboard fits comfortably within maxKeyboardHeight without squishing unevenly
+        val mainRowCount = if (includeFnRow) rows.size - 1 else rows.size
+        val fnRatio = if (includeFnRow) 0.68f else 0f
+        val chromeHeight = vPadding * 2 + rowGap * (rows.size - 1)
+        val availableForKeys = (maxKeyboardHeight - chromeHeight).coerceAtLeast(150.dp)
+        val maxAllowedMainRow = availableForKeys / (mainRowCount + fnRatio)
+
+        val mainRowHeight = minOf(idealMainRow, maxAllowedMainRow).coerceAtLeast(30.dp)
+        val fnRowHeight = (mainRowHeight * 0.68f).coerceIn(24.dp, 36.dp)
+
+        Column(
+            modifier = Modifier
+                .widthIn(max = boardMaxWidth)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(colors.surface)
+                .border(1.dp, colors.outline.copy(alpha = 0.55f), RoundedCornerShape(16.dp))
+                .padding(horizontal = hPadding, vertical = vPadding),
+            verticalArrangement = Arrangement.spacedBy(rowGap),
+        ) {
+            rows.forEachIndexed { rowIndex, row ->
+                val isFnRow = includeFnRow && rowIndex == 0
+                val rowH = if (isFnRow) fnRowHeight else mainRowHeight
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(rowH),
+                    horizontalArrangement = Arrangement.spacedBy(keyGap),
+                ) {
+                    for (spec in row) {
+                        val isModActive = when (spec.modKind) {
+                            ModKind.Shift -> shiftSticky
+                            ModKind.Caps -> capsOn
+                            ModKind.Ctrl -> ctrlSticky
+                            ModKind.Alt -> altSticky
+                            ModKind.Meta -> metaSticky
+                            null -> false
+                        }
+                        val displayLabel = when {
+                            spec.isLetter -> if (shiftSticky xor capsOn) spec.shiftLabel ?: spec.label else spec.label
+                            shiftSticky && spec.shiftLabel != null -> spec.shiftLabel
+                            else -> spec.label
+                        }
+                        val secondaryLabel = if (!compact && !isFnRow && !spec.isLetter && spec.shiftLabel != null) {
+                            if (shiftSticky) spec.label else spec.shiftLabel
+                        } else {
+                            null
+                        }
+
+                        KeyboardKeyCap(
+                            label = displayLabel,
+                            secondaryLabel = secondaryLabel,
+                            active = isModActive,
+                            isActionKey = spec.modKind != null ||
+                                spec.usageId == HidKeyMap.KEY_ENTER ||
+                                spec.usageId == HidKeyMap.KEY_BACKSPACE ||
+                                isFnRow,
+                            compact = compact || isFnRow,
+                            repeatable = spec.repeatable,
+                            onPress = {
+                                if (hapticsEnabled) {
+                                    view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                                 }
-                                null -> onKeyDown(spec.usageId, currentModifierMask)
-                            }
-                        },
-                        onRepeat = {
-                            if (spec.modKind == null) {
-                                onTapKey(spec.usageId, currentModifierMask)
-                            }
-                        },
-                        onRelease = {
-                            if (spec.modKind == null) {
-                                onKeyUp(spec.usageId, currentModifierMask)
-                                if (shiftSticky || ctrlSticky || altSticky || metaSticky) {
-                                    clearOneShotModifiers()
+                                when (spec.modKind) {
+                                    ModKind.Shift -> shiftSticky = !shiftSticky
+                                    ModKind.Ctrl -> ctrlSticky = !ctrlSticky
+                                    ModKind.Alt -> altSticky = !altSticky
+                                    ModKind.Meta -> metaSticky = !metaSticky
+                                    ModKind.Caps -> {
+                                        capsOn = !capsOn
+                                        onTapKey(HidKeyMap.KEY_CAPS_LOCK, 0)
+                                    }
+                                    null -> onKeyDown(spec.usageId, currentModifierMask)
                                 }
-                            }
-                        },
-                        modifier = Modifier
-                            .weight(spec.weight)
-                            .fillMaxHeight(),
-                    )
+                            },
+                            onRepeat = {
+                                if (spec.modKind == null) {
+                                    onTapKey(spec.usageId, currentModifierMask)
+                                }
+                            },
+                            onRelease = {
+                                if (spec.modKind == null) {
+                                    onKeyUp(spec.usageId, currentModifierMask)
+                                    if (shiftSticky || ctrlSticky || altSticky || metaSticky) {
+                                        clearOneShotModifiers()
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .weight(spec.weight)
+                                .fillMaxHeight(),
+                        )
+                    }
                 }
             }
         }
@@ -370,7 +421,6 @@ private fun KeyboardKeyCap(
     isActionKey: Boolean,
     compact: Boolean,
     repeatable: Boolean,
-    hapticsEnabled: Boolean,
     onPress: () -> Unit,
     onRepeat: () -> Unit,
     onRelease: () -> Unit,
@@ -397,7 +447,6 @@ private fun KeyboardKeyCap(
     }
     val textColor = when {
         pressed || active -> colors.onPrimaryContainer
-        isActionKey -> colors.onSurface
         else -> colors.onSurface
     }
 
@@ -458,7 +507,7 @@ private fun KeyboardKeyCap(
                 text = label,
                 fontSize = when {
                     compact && label.length > 2 -> 10.sp
-                    compact -> 13.sp
+                    compact -> 12.sp
                     label.length > 3 -> 11.sp
                     else -> 14.sp
                 },

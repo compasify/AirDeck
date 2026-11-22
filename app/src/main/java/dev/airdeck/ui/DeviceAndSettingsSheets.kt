@@ -327,7 +327,9 @@ fun SettingsSheet(
     onDismiss: () -> Unit,
     onPointerSpeedChange: (Float) -> Unit,
     onScrollSpeedChange: (Float) -> Unit,
+    onAirMouseSensitivityChange: (Float) -> Unit,
     onNaturalScrollChange: (Boolean) -> Unit,
+    onTouchpadOnTopChange: (Boolean) -> Unit,
     onHapticsChange: (Boolean) -> Unit,
     onKeepScreenOnChange: (Boolean) -> Unit,
     onShowMouseButtonsChange: (Boolean) -> Unit,
@@ -407,8 +409,27 @@ fun SettingsSheet(
                 )
             }
 
+            // Air Mouse sensitivity
+            Column {
+                Text(
+                    text = stringResource(R.string.setting_air_mouse_speed, settings.airMouseSensitivity),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Slider(
+                    value = settings.airMouseSensitivity,
+                    onValueChange = onAirMouseSensitivityChange,
+                    valueRange = 0.4f..3.0f,
+                )
+            }
+
             HorizontalDivider(color = colors.outlineVariant)
 
+            SettingSwitchRow(
+                title = stringResource(R.string.setting_touchpad_on_top),
+                subtitle = stringResource(R.string.setting_touchpad_on_top_desc),
+                checked = settings.touchpadOnTop,
+                onCheckedChange = onTouchpadOnTopChange,
+            )
             SettingSwitchRow(
                 title = stringResource(R.string.setting_natural_scroll),
                 subtitle = stringResource(R.string.setting_natural_scroll_desc),

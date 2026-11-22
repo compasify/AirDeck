@@ -12,11 +12,18 @@
     <string name="status_unsupported">Bluetooth HID is not supported on this device</string>
     <string name="status_error">Connection error</string>
 
-    <!-- Top bar & layout modes -->
+    <!-- Top bar & modes -->
     <string name="layout_auto">Auto</string>
     <string name="layout_touchpad">Touchpad</string>
     <string name="layout_split">Split</string>
     <string name="layout_keyboard">Keyboard</string>
+    <string name="layout_tv_remote">TV Remote</string>
+    <string name="layout_air_mouse">Air Mouse</string>
+    <string name="layout_numpad">Numpad</string>
+    <string name="layout_presenter">Presenter</string>
+    <string name="swap_split_position">Swap touchpad above / below keyboard</string>
+    <string name="touchpad_on_top_label">Touchpad on top</string>
+    <string name="keyboard_on_top_label">Keyboard on top (Laptop)</string>
     <string name="tv_keys_toggle">TV controls</string>
     <string name="dim_screen">Dim screen</string>
     <string name="settings_title">Settings</string>
@@ -31,15 +38,47 @@
     <string name="blackout_hint">Screen dimmed to save battery\nDouble-tap top bar to wake</string>
     <string name="wake_screen">Wake screen</string>
 
-    <!-- TV / Media quick bar -->
+    <!-- TV / Media quick bar & Remote -->
     <string name="tv_back">Back</string>
     <string name="tv_home">Home</string>
     <string name="tv_menu">Menu</string>
     <string name="tv_search">Search</string>
     <string name="tv_play_pause">Play / Pause</string>
+    <string name="tv_prev">Previous</string>
+    <string name="tv_next">Next</string>
     <string name="tv_vol_down">Volume down</string>
     <string name="tv_vol_up">Volume up</string>
     <string name="tv_mute">Mute</string>
+    <string name="tv_ok">OK</string>
+    <string name="tv_volume_label">Volume</string>
+    <string name="tv_media_label">Media</string>
+
+    <!-- Air Mouse -->
+    <string name="air_mouse_title">Air Mouse</string>
+    <string name="air_mouse_hold_hint">Hold here and move device to aim cursor</string>
+    <string name="air_mouse_active_hint">Move device in the air to steer cursor</string>
+    <string name="air_mouse_lock_mode">Continuous mode</string>
+    <string name="air_mouse_no_gyro">This device does not have a gyroscope sensor for Air Mouse.</string>
+    <string name="air_mouse_scroll_up">Scroll Up</string>
+    <string name="air_mouse_scroll_down">Scroll Down</string>
+
+    <!-- Shortcuts & Live IME -->
+    <string name="live_ime_placeholder">Type with Gboard / Voice to stream live…</string>
+    <string name="shortcut_copy">Copy</string>
+    <string name="shortcut_paste">Paste</string>
+    <string name="shortcut_cut">Cut</string>
+    <string name="shortcut_undo">Undo</string>
+    <string name="shortcut_select_all">Select All</string>
+    <string name="shortcut_alt_tab">Alt+Tab</string>
+    <string name="shortcut_refresh">F5</string>
+
+    <!-- Presenter -->
+    <string name="presenter_next">Next Slide</string>
+    <string name="presenter_prev">Previous</string>
+    <string name="presenter_start">Start (F5)</string>
+    <string name="presenter_end">Exit (Esc)</string>
+    <string name="presenter_blank">Blackout (B)</string>
+    <string name="presenter_reset_timer">Reset timer</string>
 
     <!-- Device sheet -->
     <string name="sheet_devices_title">Bluetooth Devices</string>
@@ -60,8 +99,11 @@
     <!-- Settings sheet -->
     <string name="setting_pointer_speed">Pointer speed (%1$.1fx)</string>
     <string name="setting_scroll_speed">Scroll speed (%1$.1fx)</string>
+    <string name="setting_air_mouse_speed">Air Mouse sensitivity (%1$.1fx)</string>
     <string name="setting_natural_scroll">Natural scrolling</string>
     <string name="setting_natural_scroll_desc">Scroll content in the direction of finger movement</string>
+    <string name="setting_touchpad_on_top">Touchpad above keyboard (Split mode)</string>
+    <string name="setting_touchpad_on_top_desc">Off = Laptop layout (Keyboard top, Touchpad bottom)</string>
     <string name="setting_haptics">Haptic feedback</string>
     <string name="setting_haptics_desc">Subtle vibration on key press and click</string>
     <string name="setting_keep_screen_on">Keep screen awake</string>

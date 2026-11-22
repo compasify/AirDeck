@@ -10,11 +10,18 @@
     <string name="status_unsupported">Thiết bị không hỗ trợ Bluetooth HID</string>
     <string name="status_error">Lỗi kết nối</string>
 
-    <!-- Top bar & layout modes -->
+    <!-- Top bar & modes -->
     <string name="layout_auto">Tự động</string>
     <string name="layout_touchpad">Touchpad</string>
     <string name="layout_split">Chia đôi</string>
     <string name="layout_keyboard">Bàn phím</string>
+    <string name="layout_tv_remote">Remote TV</string>
+    <string name="layout_air_mouse">Chuột bay</string>
+    <string name="layout_numpad">Phím số</string>
+    <string name="layout_presenter">Trình chiếu</string>
+    <string name="swap_split_position">Đổi vị trí Touchpad trên / dưới bàn phím</string>
+    <string name="touchpad_on_top_label">Touchpad ở trên</string>
+    <string name="keyboard_on_top_label">Bàn phím ở trên (Kiểu Laptop)</string>
     <string name="tv_keys_toggle">Phím TV</string>
     <string name="dim_screen">Làm tối màn hình</string>
     <string name="settings_title">Cài đặt</string>
@@ -29,15 +36,47 @@
     <string name="blackout_hint">Đã làm tối màn hình để tiết kiệm pin\nChạm đúp thanh trên để bật sáng lại</string>
     <string name="wake_screen">Bật sáng màn hình</string>
 
-    <!-- TV / Media quick bar -->
+    <!-- TV / Media quick bar & Remote -->
     <string name="tv_back">Quay lại</string>
     <string name="tv_home">Màn hình chính</string>
     <string name="tv_menu">Menu</string>
     <string name="tv_search">Tìm kiếm</string>
     <string name="tv_play_pause">Phát / Tạm dừng</string>
+    <string name="tv_prev">Trước</string>
+    <string name="tv_next">Tiếp</string>
     <string name="tv_vol_down">Giảm âm lượng</string>
     <string name="tv_vol_up">Tăng âm lượng</string>
     <string name="tv_mute">Tắt tiếng</string>
+    <string name="tv_ok">OK</string>
+    <string name="tv_volume_label">Âm lượng</string>
+    <string name="tv_media_label">Phát nhạc / Video</string>
+
+    <!-- Air Mouse -->
+    <string name="air_mouse_title">Chuột bay (Air Mouse)</string>
+    <string name="air_mouse_hold_hint">Chạm giữ vùng này và di chuyển máy để điều khiển con trỏ</string>
+    <string name="air_mouse_active_hint">Di chuyển thiết bị trên không để điều khiển con trỏ</string>
+    <string name="air_mouse_lock_mode">Chế độ liên tục</string>
+    <string name="air_mouse_no_gyro">Thiết bị này không có cảm biến con quay hồi chuyển (Gyroscope) cho Chuột bay.</string>
+    <string name="air_mouse_scroll_up">Cuộn lên</string>
+    <string name="air_mouse_scroll_down">Cuộn xuống</string>
+
+    <!-- Shortcuts & Live IME -->
+    <string name="live_ime_placeholder">Gõ bằng Gboard / Giọng nói để truyền trực tiếp…</string>
+    <string name="shortcut_copy">Chép</string>
+    <string name="shortcut_paste">Dán</string>
+    <string name="shortcut_cut">Cắt</string>
+    <string name="shortcut_undo">Hoàn tác</string>
+    <string name="shortcut_select_all">Chọn hết</string>
+    <string name="shortcut_alt_tab">Alt+Tab</string>
+    <string name="shortcut_refresh">F5</string>
+
+    <!-- Presenter -->
+    <string name="presenter_next">Slide tiếp</string>
+    <string name="presenter_prev">Slide trước</string>
+    <string name="presenter_start">Bắt đầu (F5)</string>
+    <string name="presenter_end">Thoát (Esc)</string>
+    <string name="presenter_blank">Màn đen (B)</string>
+    <string name="presenter_reset_timer">Đặt lại giờ</string>
 
     <!-- Device sheet -->
     <string name="sheet_devices_title">Thiết bị Bluetooth</string>
@@ -58,8 +97,11 @@
     <!-- Settings sheet -->
     <string name="setting_pointer_speed">Tốc độ con trỏ (%1$.1fx)</string>
     <string name="setting_scroll_speed">Tốc độ cuộn (%1$.1fx)</string>
+    <string name="setting_air_mouse_speed">Độ nhạy Chuột bay (%1$.1fx)</string>
     <string name="setting_natural_scroll">Cuộn tự nhiên</string>
     <string name="setting_natural_scroll_desc">Nội dung cuộn theo hướng di chuyển của ngón tay</string>
+    <string name="setting_touchpad_on_top">Touchpad nằm trên bàn phím (Chế độ chia đôi)</string>
+    <string name="setting_touchpad_on_top_desc">Tắt = Kiểu Laptop (Bàn phím trên, Touchpad dưới)</string>
     <string name="setting_haptics">Phản hồi rung</string>
     <string name="setting_haptics_desc">Rung nhẹ khi nhấn phím hoặc click chuột</string>
     <string name="setting_keep_screen_on">Giữ màn hình luôn sáng</string>

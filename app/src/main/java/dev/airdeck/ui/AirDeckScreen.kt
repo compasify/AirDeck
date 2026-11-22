@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -17,15 +18,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.BluetoothConnected
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.PresentToAll
+import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SettingsRemote
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material.icons.filled.ViewAgenda
@@ -61,10 +69,14 @@ import dev.airdeck.hid.BluetoothHidController
 import dev.airdeck.hid.HidConnectionState
 import kotlinx.coroutines.launch
 
-private enum class ActiveDeckLayout {
+private enum class ActiveDeckMode {
     Touchpad,
     Split,
     Keyboard,
+    TvRemote,
+    AirMouse,
+    Numpad,
+    Presenter,
 }
 
 @Composable
@@ -83,13 +95,12 @@ fun AirDeckScreen(
     val settings by prefs.settings.collectAsStateWithLifecycle(initialValue = AirDeckSettings())
     val scope = rememberCoroutineScope()
 
-    var manualOverride by remember { mutableStateOf<ActiveDeckLayout?>(null) }
+    var manualOverride by remember { mutableStateOf<ActiveDeckMode?>(null) }
     var blackoutMode by remember { mutableStateOf(false) }
     var devicesSheetOpen by remember { mutableStateOf(false) }
     var settingsSheetOpen by remember { mutableStateOf(false) }
     var quickTextOpen by remember { mutableStateOf(false) }
 
-    // Reset manual override when user explicitly changes default layout in Settings
     LaunchedEffect(settings.layoutPreference) {
         manualOverride = null
     }
@@ -117,22 +128,25 @@ fun AirDeckScreen(
         val isWide = containerWidth >= 600.dp
         val isTallEnoughForSplit = containerHeight >= 460.dp
 
-        val autoLayout = if (isWide && isTallEnoughForSplit) {
-            ActiveDeckLayout.Split
+        val autoMode = if (isWide && isTallEnoughForSplit) {
+            ActiveDeckMode.Split
         } else {
-            ActiveDeckLayout.Touchpad
+            ActiveDeckMode.Touchpad
         }
 
-        val activeLayout = manualOverride ?: when (settings.layoutPreference) {
-            DeckLayoutPreference.Auto -> autoLayout
-            DeckLayoutPreference.Touchpad -> ActiveDeckLayout.Touchpad
-            DeckLayoutPreference.Split -> ActiveDeckLayout.Split
-            DeckLayoutPreference.Keyboard -> ActiveDeckLayout.Keyboard
+        val activeMode = manualOverride ?: when (settings.layoutPreference) {
+            DeckLayoutPreference.Auto -> autoMode
+            DeckLayoutPreference.Touchpad -> ActiveDeckMode.Touchpad
+            DeckLayoutPreference.Split -> ActiveDeckMode.Split
+            DeckLayoutPreference.Keyboard -> ActiveDeckMode.Keyboard
+            DeckLayoutPreference.TvRemote -> ActiveDeckMode.TvRemote
+            DeckLayoutPreference.AirMouse -> ActiveDeckMode.AirMouse
+            DeckLayoutPreference.Numpad -> ActiveDeckMode.Numpad
+            DeckLayoutPreference.Presenter -> ActiveDeckMode.Presenter
         }
 
-        // Exit blackout mode if user switches away from Touchpad
-        LaunchedEffect(activeLayout) {
-            if (activeLayout != ActiveDeckLayout.Touchpad && blackoutMode) {
+        LaunchedEffect(activeMode) {
+            if (activeMode != ActiveDeckMode.Touchpad && blackoutMode) {
                 blackoutMode = false
             }
         }
@@ -140,9 +154,9 @@ fun AirDeckScreen(
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (blackoutMode) {
-                // Minimal wake bar when screen is dimmed
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -179,30 +193,32 @@ fun AirDeckScreen(
                     }
                 }
             } else {
-                // Slim top control bar
                 TopDeckBar(
                     connectionState = connectionState,
-                    activeLayout = activeLayout,
+                    activeMode = activeMode,
+                    touchpadOnTop = settings.touchpadOnTop,
                     showTvBar = settings.showTvBar,
                     compact = !isWide,
                     onOpenDevices = {
                         hidController.refreshPairedHosts()
                         devicesSheetOpen = true
                     },
-                    onSelectLayout = { chosen ->
-                        manualOverride = chosen
+                    onSelectMode = { chosen -> manualOverride = chosen },
+                    onSwapSplit = {
+                        scope.launch { prefs.setTouchpadOnTop(!settings.touchpadOnTop) }
                     },
                     onToggleTvBar = {
                         scope.launch { prefs.setShowTvBar(!settings.showTvBar) }
                     },
                     onToggleDim = {
-                        manualOverride = ActiveDeckLayout.Touchpad
+                        manualOverride = ActiveDeckMode.Touchpad
                         blackoutMode = true
                     },
                     onOpenSettings = { settingsSheetOpen = true },
                 )
 
-                AnimatedVisibility(visible = settings.showTvBar) {
+                val showQuickTvStrip = settings.showTvBar && activeMode != ActiveDeckMode.TvRemote
+                AnimatedVisibility(visible = showQuickTvStrip) {
                     TvControlBar(
                         hapticsEnabled = settings.hapticsEnabled,
                         onConsumerKey = { usage -> hidController.tapConsumerKey(usage) },
@@ -212,8 +228,8 @@ fun AirDeckScreen(
             }
 
             // Main adaptive deck area
-            when (activeLayout) {
-                ActiveDeckLayout.Touchpad -> {
+            when (activeMode) {
+                ActiveDeckMode.Touchpad -> {
                     TouchpadSurface(
                         connected = isConnected,
                         blackoutMode = blackoutMode,
@@ -232,52 +248,135 @@ fun AirDeckScreen(
                     )
                 }
 
-                ActiveDeckLayout.Split -> {
-                    val touchpadWeight = if (isWide) 0.46f else 0.44f
-                    val keyboardWeight = 1f - touchpadWeight
+                ActiveDeckMode.Split -> {
                     val compactKeyboard = !isWide
-                    val showFnRow = isWide && containerHeight >= 600.dp
+                    val showFnRow = isWide && containerHeight >= 560.dp
+                    val maxKbHeight = (containerHeight * 0.52f).coerceIn(210.dp, 340.dp)
+                    val deckMaxWidth = if (isWide) 980.dp else containerWidth
 
-                    TouchpadSurface(
-                        connected = isConnected,
-                        blackoutMode = false,
-                        pointerSpeed = settings.pointerSpeed,
-                        scrollSpeed = settings.scrollSpeed,
-                        naturalScroll = settings.naturalScroll,
-                        hapticsEnabled = settings.hapticsEnabled,
-                        showMouseButtons = settings.showMouseButtons,
-                        onMove = { dx, dy -> hidController.movePointer(dx, dy) },
-                        onScroll = { v, h -> hidController.scroll(v, h) },
-                        onButtonChange = { mask, pressed -> hidController.setMouseButton(mask, pressed) },
-                        onClick = { mask -> hidController.clickMouse(mask) },
+                    val touchpadBlock: @Composable () -> Unit = {
+                        val padMaxWidth = if (isWide && !settings.touchpadOnTop) 620.dp else deckMaxWidth
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            TouchpadSurface(
+                                connected = isConnected,
+                                blackoutMode = false,
+                                pointerSpeed = settings.pointerSpeed,
+                                scrollSpeed = settings.scrollSpeed,
+                                naturalScroll = settings.naturalScroll,
+                                hapticsEnabled = settings.hapticsEnabled,
+                                showMouseButtons = settings.showMouseButtons,
+                                onMove = { dx, dy -> hidController.movePointer(dx, dy) },
+                                onScroll = { v, h -> hidController.scroll(v, h) },
+                                onButtonChange = { mask, pressed -> hidController.setMouseButton(mask, pressed) },
+                                onClick = { mask -> hidController.clickMouse(mask) },
+                                modifier = Modifier
+                                    .widthIn(max = padMaxWidth)
+                                    .fillMaxSize(),
+                            )
+                        }
+                    }
+
+                    val keyboardBlock: @Composable () -> Unit = {
+                        VirtualKeyboard(
+                            compact = compactKeyboard,
+                            showFunctionRow = showFnRow,
+                            hapticsEnabled = settings.hapticsEnabled,
+                            maxKeyboardHeight = maxKbHeight,
+                            onModifierMaskChange = { mask -> hidController.setModifierMask(mask) },
+                            onKeyDown = { usage, mod -> hidController.keyDown(usage, mod) },
+                            onKeyUp = { usage, mod -> hidController.keyUp(usage, mod) },
+                            onTapKey = { usage, mod -> hidController.tapKey(usage, mod) },
+                        )
+                    }
+
+                    if (settings.touchpadOnTop) {
+                        touchpadBlock()
+                        keyboardBlock()
+                    } else {
+                        keyboardBlock()
+                        touchpadBlock()
+                    }
+                }
+
+                ActiveDeckMode.Keyboard -> {
+                    val compactKeyboard = !isWide
+                    val showFnRow = isWide || containerHeight >= 500.dp
+                    val maxKbHeight = (containerHeight * 0.62f).coerceIn(220.dp, 360.dp)
+
+                    Column(
                         modifier = Modifier
+                            .widthIn(max = 980.dp)
                             .fillMaxWidth()
-                            .weight(touchpadWeight),
-                    )
-                    VirtualKeyboard(
-                        compact = compactKeyboard,
-                        showFunctionRow = showFnRow,
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Bottom),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Spacer(Modifier.weight(1f))
+                        LiveImeBar(
+                            onSendText = { text -> hidController.sendText(text) },
+                            onTapKey = { usage, mod -> hidController.tapKey(usage, mod) },
+                        )
+                        ShortcutBar(
+                            hapticsEnabled = settings.hapticsEnabled,
+                            onTapShortcut = { usage, mod -> hidController.tapKey(usage, mod) },
+                        )
+                        VirtualKeyboard(
+                            compact = compactKeyboard,
+                            showFunctionRow = showFnRow,
+                            hapticsEnabled = settings.hapticsEnabled,
+                            maxKeyboardHeight = maxKbHeight,
+                            onModifierMaskChange = { mask -> hidController.setModifierMask(mask) },
+                            onKeyDown = { usage, mod -> hidController.keyDown(usage, mod) },
+                            onKeyUp = { usage, mod -> hidController.keyUp(usage, mod) },
+                            onTapKey = { usage, mod -> hidController.tapKey(usage, mod) },
+                        )
+                    }
+                }
+
+                ActiveDeckMode.TvRemote -> {
+                    TvRemoteScreen(
                         hapticsEnabled = settings.hapticsEnabled,
-                        onModifierMaskChange = { mask -> hidController.setModifierMask(mask) },
-                        onKeyDown = { usage, mod -> hidController.keyDown(usage, mod) },
-                        onKeyUp = { usage, mod -> hidController.keyUp(usage, mod) },
                         onTapKey = { usage, mod -> hidController.tapKey(usage, mod) },
+                        onConsumerKey = { usage -> hidController.tapConsumerKey(usage) },
+                        onOpenQuickText = { quickTextOpen = true },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(keyboardWeight),
+                            .weight(1f),
                     )
                 }
 
-                ActiveDeckLayout.Keyboard -> {
-                    val compactKeyboard = !isWide
-                    val showFnRow = isWide || containerHeight >= 520.dp
-                    VirtualKeyboard(
-                        compact = compactKeyboard,
-                        showFunctionRow = showFnRow,
+                ActiveDeckMode.AirMouse -> {
+                    AirMouseScreen(
+                        sensitivity = settings.airMouseSensitivity,
                         hapticsEnabled = settings.hapticsEnabled,
-                        onModifierMaskChange = { mask -> hidController.setModifierMask(mask) },
-                        onKeyDown = { usage, mod -> hidController.keyDown(usage, mod) },
-                        onKeyUp = { usage, mod -> hidController.keyUp(usage, mod) },
+                        onMove = { dx, dy -> hidController.movePointer(dx, dy) },
+                        onScroll = { v -> hidController.scroll(v) },
+                        onButtonChange = { mask, pressed -> hidController.setMouseButton(mask, pressed) },
+                        onConsumerKey = { usage -> hidController.tapConsumerKey(usage) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                    )
+                }
+
+                ActiveDeckMode.Numpad -> {
+                    NumpadScreen(
+                        hapticsEnabled = settings.hapticsEnabled,
+                        onTapKey = { usage, mod -> hidController.tapKey(usage, mod) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                    )
+                }
+
+                ActiveDeckMode.Presenter -> {
+                    PresenterScreen(
+                        hapticsEnabled = settings.hapticsEnabled,
                         onTapKey = { usage, mod -> hidController.tapKey(usage, mod) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -310,7 +409,9 @@ fun AirDeckScreen(
             onDismiss = { settingsSheetOpen = false },
             onPointerSpeedChange = { v -> scope.launch { prefs.setPointerSpeed(v) } },
             onScrollSpeedChange = { v -> scope.launch { prefs.setScrollSpeed(v) } },
+            onAirMouseSensitivityChange = { v -> scope.launch { prefs.setAirMouseSensitivity(v) } },
             onNaturalScrollChange = { v -> scope.launch { prefs.setNaturalScroll(v) } },
+            onTouchpadOnTopChange = { v -> scope.launch { prefs.setTouchpadOnTop(v) } },
             onHapticsChange = { v -> scope.launch { prefs.setHapticsEnabled(v) } },
             onKeepScreenOnChange = { v -> scope.launch { prefs.setKeepScreenOn(v) } },
             onShowMouseButtonsChange = { v -> scope.launch { prefs.setShowMouseButtons(v) } },
@@ -329,11 +430,13 @@ fun AirDeckScreen(
 @Composable
 private fun TopDeckBar(
     connectionState: HidConnectionState,
-    activeLayout: ActiveDeckLayout,
+    activeMode: ActiveDeckMode,
+    touchpadOnTop: Boolean,
     showTvBar: Boolean,
     compact: Boolean,
     onOpenDevices: () -> Unit,
-    onSelectLayout: (ActiveDeckLayout) -> Unit,
+    onSelectMode: (ActiveDeckMode) -> Unit,
+    onSwapSplit: () -> Unit,
     onToggleTvBar: () -> Unit,
     onToggleDim: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -381,13 +484,13 @@ private fun TopDeckBar(
                 if (connectionState is HidConnectionState.Connected) colors.primary.copy(alpha = 0.7f) else colors.outline.copy(alpha = 0.5f),
             ),
             modifier = Modifier
-                .weight(1f)
+                .widthIn(min = 96.dp, max = if (compact) 136.dp else 210.dp)
                 .height(36.dp),
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 10.dp),
+                modifier = Modifier.padding(horizontal = 9.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(7.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Box(
                     modifier = Modifier
@@ -403,11 +506,11 @@ private fun TopDeckBar(
                     },
                     contentDescription = null,
                     tint = if (connectionState is HidConnectionState.Connected) colors.primary else colors.onSurfaceVariant,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(15.dp),
                 )
                 Text(
                     text = statusText,
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     color = colors.onSurface,
                     maxLines = 1,
@@ -416,38 +519,85 @@ private fun TopDeckBar(
             }
         }
 
-        // 3-mode layout switcher: Touchpad | Split | Keyboard
+        // Scrollable mode switcher for all 7 modes
         Surface(
             shape = RoundedCornerShape(12.dp),
             color = colors.surfaceVariant.copy(alpha = 0.65f),
             border = BorderStroke(1.dp, colors.outline.copy(alpha = 0.45f)),
-            modifier = Modifier.height(36.dp),
+            modifier = Modifier
+                .weight(1f)
+                .height(36.dp),
         ) {
             Row(
-                modifier = Modifier.padding(2.dp),
+                modifier = Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .padding(2.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                LayoutSwitchChip(
+                ModeSwitchChip(
                     icon = Icons.Default.TouchApp,
                     label = if (compact) null else stringResource(R.string.layout_touchpad),
                     contentDescription = stringResource(R.string.layout_touchpad),
-                    selected = activeLayout == ActiveDeckLayout.Touchpad,
-                    onClick = { onSelectLayout(ActiveDeckLayout.Touchpad) },
+                    selected = activeMode == ActiveDeckMode.Touchpad,
+                    onClick = { onSelectMode(ActiveDeckMode.Touchpad) },
                 )
-                LayoutSwitchChip(
+                ModeSwitchChip(
                     icon = Icons.Default.ViewAgenda,
                     label = if (compact) null else stringResource(R.string.layout_split),
                     contentDescription = stringResource(R.string.layout_split),
-                    selected = activeLayout == ActiveDeckLayout.Split,
-                    onClick = { onSelectLayout(ActiveDeckLayout.Split) },
+                    selected = activeMode == ActiveDeckMode.Split,
+                    onClick = { onSelectMode(ActiveDeckMode.Split) },
                 )
-                LayoutSwitchChip(
+                ModeSwitchChip(
                     icon = Icons.Default.Keyboard,
                     label = if (compact) null else stringResource(R.string.layout_keyboard),
                     contentDescription = stringResource(R.string.layout_keyboard),
-                    selected = activeLayout == ActiveDeckLayout.Keyboard,
-                    onClick = { onSelectLayout(ActiveDeckLayout.Keyboard) },
+                    selected = activeMode == ActiveDeckMode.Keyboard,
+                    onClick = { onSelectMode(ActiveDeckMode.Keyboard) },
+                )
+                ModeSwitchChip(
+                    icon = Icons.Default.SettingsRemote,
+                    label = if (compact) null else stringResource(R.string.layout_tv_remote),
+                    contentDescription = stringResource(R.string.layout_tv_remote),
+                    selected = activeMode == ActiveDeckMode.TvRemote,
+                    onClick = { onSelectMode(ActiveDeckMode.TvRemote) },
+                )
+                ModeSwitchChip(
+                    icon = Icons.Default.ScreenRotation,
+                    label = if (compact) null else stringResource(R.string.layout_air_mouse),
+                    contentDescription = stringResource(R.string.layout_air_mouse),
+                    selected = activeMode == ActiveDeckMode.AirMouse,
+                    onClick = { onSelectMode(ActiveDeckMode.AirMouse) },
+                )
+                ModeSwitchChip(
+                    icon = Icons.Default.Dialpad,
+                    label = if (compact) null else stringResource(R.string.layout_numpad),
+                    contentDescription = stringResource(R.string.layout_numpad),
+                    selected = activeMode == ActiveDeckMode.Numpad,
+                    onClick = { onSelectMode(ActiveDeckMode.Numpad) },
+                )
+                ModeSwitchChip(
+                    icon = Icons.Default.PresentToAll,
+                    label = if (compact) null else stringResource(R.string.layout_presenter),
+                    contentDescription = stringResource(R.string.layout_presenter),
+                    selected = activeMode == ActiveDeckMode.Presenter,
+                    onClick = { onSelectMode(ActiveDeckMode.Presenter) },
+                )
+            }
+        }
+
+        // 1-tap swap Touchpad above / below Keyboard when in Split mode
+        if (activeMode == ActiveDeckMode.Split) {
+            IconButton(
+                onClick = onSwapSplit,
+                modifier = Modifier.size(34.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.SwapVert,
+                    contentDescription = stringResource(R.string.swap_split_position),
+                    tint = if (touchpadOnTop) colors.primary else colors.onSurfaceVariant,
+                    modifier = Modifier.size(19.dp),
                 )
             }
         }
@@ -455,46 +605,48 @@ private fun TopDeckBar(
         // TV bar toggle
         IconButton(
             onClick = onToggleTvBar,
-            modifier = Modifier.size(36.dp),
+            modifier = Modifier.size(34.dp),
         ) {
             Icon(
                 imageVector = Icons.Default.Tv,
                 contentDescription = stringResource(R.string.tv_keys_toggle),
                 tint = if (showTvBar) colors.primary else colors.onSurfaceVariant,
-                modifier = Modifier.size(19.dp),
+                modifier = Modifier.size(18.dp),
             )
         }
 
-        // Dim / OLED blackout button
-        IconButton(
-            onClick = onToggleDim,
-            modifier = Modifier.size(36.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Default.DarkMode,
-                contentDescription = stringResource(R.string.dim_screen),
-                tint = colors.onSurfaceVariant,
-                modifier = Modifier.size(19.dp),
-            )
+        // OLED Dim button
+        if (activeMode == ActiveDeckMode.Touchpad) {
+            IconButton(
+                onClick = onToggleDim,
+                modifier = Modifier.size(34.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DarkMode,
+                    contentDescription = stringResource(R.string.dim_screen),
+                    tint = colors.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
         }
 
         // Settings button
         IconButton(
             onClick = onOpenSettings,
-            modifier = Modifier.size(36.dp),
+            modifier = Modifier.size(34.dp),
         ) {
             Icon(
                 imageVector = Icons.Default.Settings,
                 contentDescription = stringResource(R.string.settings_title),
                 tint = colors.onSurfaceVariant,
-                modifier = Modifier.size(19.dp),
+                modifier = Modifier.size(18.dp),
             )
         }
     }
 }
 
 @Composable
-private fun LayoutSwitchChip(
+private fun ModeSwitchChip(
     icon: ImageVector,
     label: String?,
     contentDescription: String,
@@ -516,7 +668,7 @@ private fun LayoutSwitchChip(
                 imageVector = icon,
                 contentDescription = contentDescription,
                 tint = if (selected) colors.primary else colors.onSurfaceVariant,
-                modifier = Modifier.size(17.dp),
+                modifier = Modifier.size(16.dp),
             )
             if (label != null) {
                 Spacer(Modifier.width(4.dp))
@@ -525,6 +677,7 @@ private fun LayoutSwitchChip(
                     fontSize = 11.sp,
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                     color = if (selected) colors.primary else colors.onSurfaceVariant,
+                    maxLines = 1,
                 )
             }
         }
