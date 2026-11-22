@@ -99,6 +99,12 @@ File APK sau khi build nằm tại `app/build/outputs/apk/debug/app-debug.apk`.
 
 ---
 
+## Dự án liên quan
+
+- **[OpenDex](https://github.com/compasify/OpenDex)** — Không gian làm việc chế độ Desktop mã nguồn mở cho Android với thanh tác vụ (taskbar), cửa sổ ứng dụng tự do (free-form) và hỗ trợ đầy đủ cả màn hình trên máy, màn hình ngoài qua USB-C/HDMI lẫn truyền không dây Wi-Fi Cast. Kết hợp **AirDeck** cùng màn hình ngoài hoặc Android TV chạy **OpenDex** để có trọn bộ trải nghiệm desktop không dây.
+
+---
+
 ## Đóng góp
 
 Mọi đóng góp, báo lỗi (Issue) và Pull Request đều được hoan nghênh!

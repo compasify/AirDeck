@@ -127,6 +127,12 @@ app/src/main/java/dev/airdeck/
 
 ---
 
+## Related Projects
+
+- **[OpenDex](https://github.com/compasify/OpenDex)** — An open-source desktop mode workspace for Android featuring a taskbar, free-form app windows, and full support for on-device screens, wired USB-C/HDMI displays, and wireless Wi-Fi Cast displays. Pair **AirDeck** with an external screen or Android TV running **OpenDex** for a complete wireless desktop setup.
+
+---
+
 ## Contributing
 
 Contributions, bug reports, and pull requests are welcome! Please open an issue first for major changes.
