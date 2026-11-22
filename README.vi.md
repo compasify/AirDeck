@@ -13,6 +13,26 @@ Kết nối trực tiếp qua Bluetooth chuẩn với Smart TV (Samsung Tizen, L
 
 ---
 
+## Ảnh chụp màn hình
+
+| Chia đôi — Kiểu Laptop (Bàn phím trên) | Chia đôi — Kiểu Cầm tay (Touchpad trên) |
+| :---: | :---: |
+| ![Chia đôi Laptop](docs/screenshots/02-split-laptop.png) | ![Chia đôi Cầm tay](docs/screenshots/03-split-handheld.png) |
+
+| Touchpad toàn màn hình | Bàn phím + Live IME & Phím tắt |
+| :---: | :---: |
+| ![Touchpad](docs/screenshots/01-touchpad.png) | ![Bàn phím](docs/screenshots/04-keyboard.png) |
+
+| Remote TV (D-Pad + Media) | Chuột bay (Air Mouse) |
+| :---: | :---: |
+| ![Remote TV](docs/screenshots/05-tv-remote.png) | ![Chuột bay](docs/screenshots/06-air-mouse.png) |
+
+| Phím số (Numpad) | Trình chiếu (Presenter) |
+| :---: | :---: |
+| ![Phím số](docs/screenshots/07-numpad.png) | ![Trình chiếu](docs/screenshots/08-presenter.png) |
+
+---
+
 ## Tính năng nổi bật
 
 ### 7 chế độ điều khiển chuyển đổi nhanh

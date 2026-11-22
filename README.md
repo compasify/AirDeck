@@ -13,6 +13,26 @@ Pair it directly over standard Bluetooth with Smart TVs (Samsung Tizen, LG webOS
 
 ---
 
+## Screenshots
+
+| Split Mode — Laptop Layout (Keyboard Top) | Split Mode — Handheld Layout (Touchpad Top) |
+| :---: | :---: |
+| ![Split Laptop](docs/screenshots/02-split-laptop.png) | ![Split Handheld](docs/screenshots/03-split-handheld.png) |
+
+| Fullscreen Touchpad | Keyboard + Live IME & Shortcuts |
+| :---: | :---: |
+| ![Touchpad](docs/screenshots/01-touchpad.png) | ![Keyboard](docs/screenshots/04-keyboard.png) |
+
+| Smart TV Remote (D-Pad + Media) | Gyroscope Air Mouse |
+| :---: | :---: |
+| ![TV Remote](docs/screenshots/05-tv-remote.png) | ![Air Mouse](docs/screenshots/06-air-mouse.png) |
+
+| Numpad | Slide Presenter |
+| :---: | :---: |
+| ![Numpad](docs/screenshots/07-numpad.png) | ![Presenter](docs/screenshots/08-presenter.png) |
+
+---
+
 ## Features
 
 ### 7 Switchable Input Modes
