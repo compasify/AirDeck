@@ -1,5 +1,7 @@
 # AirDeck
 
+**English** | [Tiếng Việt](README.vi.md)
+
 **AirDeck** turns your Android phone or tablet into a serverless **Bluetooth HID wireless keyboard, multi-touch trackpad, Smart TV remote, gyroscope air mouse, numpad, and presentation clicker** — with **no companion app, no server software, and no root** required on the target device.
 
 Pair it directly over standard Bluetooth with Smart TVs (Samsung Tizen, LG webOS, Android TV / Google TV), Windows, macOS, Linux, ChromeOS, iPadOS, Steam Deck, or another Android device.
